@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Whats Near Me</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_log">See log</string>
+</resources>
