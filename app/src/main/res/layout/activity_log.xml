@@ -9,7 +9,7 @@
     tools:context="one.tribe.whatsnearme.ui.LogActivity">
 
     <TextView
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Log"
@@ -22,6 +22,17 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/logTxt"
-        android:textSize="@dimen/abc_text_size_small_material" />
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:scrollbars = "vertical"
+        android:layout_weight="1" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/clear_log"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanLog"/>
 
 </LinearLayout>

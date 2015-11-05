@@ -14,23 +14,20 @@ import java.util.List;
 /**
  *
  */
-public class BluetoothDiscovery {
+public class ClassicBluetoothDiscovery {
 
     private List<DiscoverableBluetoothDevice> discoveredDevices;
-
-    private ResultReceiver resultReceiver;
 
     private boolean started = false;
 
     private long id;
 
-    public BluetoothDiscovery(long id) {
+    public ClassicBluetoothDiscovery(long id) {
         this.id = id;
     }
 
-    public boolean start(BluetoothAdapter bluetoothAdapter, ResultReceiver resultReceiver) {
+    public boolean start(BluetoothAdapter bluetoothAdapter) {
         Log.i(Constants.TAG, "Starting bluetooth discovery " + id);
-        this.resultReceiver = resultReceiver;
         discoveredDevices = new ArrayList<>();
 
         Log.i(Constants.TAG, "Starting bluetooth discovery on adapter: " + id);
@@ -45,14 +42,9 @@ public class BluetoothDiscovery {
      */
     public void finish() {
         started = false;
-        Log.i(Constants.TAG, "Bluetooth discovery "+id+" finished, sending message to service");
-
-        Bundle bundle = new Bundle();
-        bundle.putInt("discoveredDevices", discoveredDevices.size());
-        bundle.putLong("discoveryId", id);
-
-        resultReceiver.send(1, bundle);
+        Log.i(Constants.TAG, "Classic Bluetooth discovery "+id+" finished");
     }
+
 
     public void addDiscoveredDevice(BluetoothDevice device) {
         if(started) {

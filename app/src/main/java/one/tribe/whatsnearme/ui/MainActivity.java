@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,6 +17,7 @@ import android.widget.ExpandableListView;
 
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.R;
+import one.tribe.whatsnearme.SettingsActivity;
 import one.tribe.whatsnearme.WhastNearMeApplication;
 import one.tribe.whatsnearme.bluetooth.BluetoothDeviceManager;
 import one.tribe.whatsnearme.bluetooth.WhatsNearMeDeviceManager;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         // setting list adapter
         expListView.setAdapter(listAdapter);
+
     }
 
     @Override
@@ -59,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         WhastNearMeApplication.activityResumed();
         updateGui();
+        expListView.expandGroup(0);
+        expListView.expandGroup(1);
+        expListView.expandGroup(2);
     }
 
     @Override
@@ -66,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         WhastNearMeApplication.activityResumed();
         updateGui();
+        expListView.expandGroup(0);
+        expListView.expandGroup(1);
+        expListView.expandGroup(2);
+
     }
 
     @Override
@@ -97,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -105,6 +118,10 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LogActivity.class);
             startActivity(intent);
 
+            return true;
+        }
+
+        if( id == R.id.action_stop_scanning) {
             return true;
         }
 
@@ -128,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         List<Discoverable> wifiNetworkList =
                 WifiNetworkManager.getInstance().getAvailableNetworks();
         List<Discoverable> bluetoothDeviceList =
-                BluetoothDeviceManager.getInstance().getAvailableDevices();
+                BluetoothDeviceManager.getInstance().getAvailableBluetoothDevices();
         List<Discoverable> phoneWithAppList =
                 WhatsNearMeDeviceManager.getInstance().getAvailableDevices();
 

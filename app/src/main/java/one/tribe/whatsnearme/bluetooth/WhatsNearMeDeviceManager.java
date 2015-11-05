@@ -61,9 +61,9 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
 
     public void onDiscoveryFinished() {
         List<DiscoverableBluetoothDevice> discoveredDevices =
-                BluetoothDeviceManager.getInstance().getDiscoveredDevices();
+                BluetoothDeviceManager.getInstance().getDiscoveredClassicDevices();
 
-        Log.i(Constants.TAG, "Bluetooth adapter discovery finished. Total discovered: " + discoveredDevices.size());
+        Log.i(Constants.TAG, "Looking for another devices using the App");
         for(DiscoverableBluetoothDevice device : discoveredDevices) {
             BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
 

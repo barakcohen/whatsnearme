@@ -1,33 +1,43 @@
 package one.tribe.whatsnearme.ui;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.R;
+import one.tribe.whatsnearme.ScannerService;
 import one.tribe.whatsnearme.network.NetworkEvent;
 import one.tribe.whatsnearme.notification.NotificationFormatter;
 
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 
 public class LogActivity extends AppCompatActivity {
 
-    TextView log;
+    TextView logTxt;
     private NetworkChangedReceiver networkChangedReceiver;
-
+    private boolean serviceBound;
+    private ScannerService scannerService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log);
 
-        log = (TextView) findViewById(R.id.logTxt);
+        logTxt = (TextView) findViewById(R.id.logTxt);
+        logTxt.setMovementMethod(new ScrollingMovementMethod());
 
         networkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(networkChangedReceiver,
@@ -35,9 +45,23 @@ public class LogActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent intent = new Intent(this, ScannerService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        Log.i(Constants.TAG, "Bound to ScannerService");
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(networkChangedReceiver);
+        unbindService(serviceConnection);
+    }
+
+    public void cleanLog(View view) {
+        logTxt.setText("");
     }
 
     private class NetworkChangedReceiver extends BroadcastReceiver {
@@ -48,9 +72,31 @@ public class LogActivity extends AppCompatActivity {
                     intent.getParcelableArrayListExtra(Constants.EXTRA_NETWORK_CHANGES);
 
             for(NetworkEvent event : networkEvents) {
-                Log.i(Constants.TAG, "Logging message for netowrk " + event.getNetworkName());
-                log.append(NotificationFormatter.formatCompleteMessage(event) + "\n");
+                logTxt.append(NotificationFormatter.formatCompleteMessage(event) + "\n");
             }
         }
     }
+
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            ScannerService.LocalBinder binder = (ScannerService.LocalBinder) service;
+            scannerService = binder.getService();
+            serviceBound = true;
+
+            if(scannerService != null) {
+                BlockingQueue<NetworkEvent> log = scannerService.getLog();
+                for(NetworkEvent event : log) {
+                    logTxt.append(NotificationFormatter.formatCompleteMessage(event) + "\n");
+                }
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            scannerService = null;
+            serviceBound = false;
+        }
+    };
 }

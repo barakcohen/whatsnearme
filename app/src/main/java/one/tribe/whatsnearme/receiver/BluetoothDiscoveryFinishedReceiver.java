@@ -28,13 +28,13 @@ public class BluetoothDiscoveryFinishedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.i(Constants.TAG, "Finished bluetooth discovery");
 
-        if(BluetoothDeviceManager.getInstance().hasDiscovery()) {
+        if(BluetoothDeviceManager.getInstance().hasClassicBluetoothDiscovery()) {
 
-            BluetoothDeviceManager.getInstance().finishDiscovery();
+            BluetoothDeviceManager.getInstance().finishClassicBluetoothDiscovery();
             WhatsNearMeDeviceManager.getInstance().onDiscoveryFinished();
 
 
-            notifyChanges(BluetoothDeviceManager.getInstance().getDevicesChanges(), context);
+            notifyChanges(BluetoothDeviceManager.getInstance().getBluetoothDevicesChanges(), context);
             notifyChanges(WhatsNearMeDeviceManager.getInstance().getDevicesChanges(), context);
         }
 

@@ -1,0 +1,47 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="com.onetribe.whatsnearme.WIFI_INTERVAL"
+        android:title="@string/pref_wifi_scan_interval"
+        android:defaultValue="@string/pref_default_wifi_scan_interval"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:icon="@drawable/ic_wifi_white_48dp"/>
+
+    <EditTextPreference
+        android:key="com.onetribe.whatsnearme.BLUETOOTH_INTERVAL"
+        android:title="@string/pref_bluetooth_interval"
+        android:defaultValue="@string/pref_default_bluetooth_interval"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:icon="@drawable/ic_bluetooth_white_48dp"/>
+
+    <EditTextPreference
+        android:key="com.onetribe.whatsnearme.BLUETOOTH_LE_SCAN_TIME"
+        android:title="@string/pref_bluetooth_le_scan_time"
+        android:defaultValue="@string/pref_default_bluetooth_le_scan_time"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:icon="@drawable/ic_bluetooth_white_48dp"/>
+
+    <EditTextPreference
+        android:key="com.onetribe.whatsnearme.LOG_LIMIT"
+        android:title="@string/pref_log_limit"
+        android:defaultValue="@string/pref_default_log_limit"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+    <SwitchPreference
+        android:key="com.onetribe.whatsnearme.NOTIFICATIONS"
+        android:title="@string/pref_notifications_on"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_notifications_black_24dp"/>
+
+</PreferenceScreen>
