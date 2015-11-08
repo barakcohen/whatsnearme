@@ -1,12 +1,14 @@
 package one.tribe.whatsnearme.ui;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,34 +17,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.R;
-import one.tribe.whatsnearme.SettingsActivity;
-import one.tribe.whatsnearme.WhastNearMeApplication;
+import one.tribe.whatsnearme.ScannerService;
 import one.tribe.whatsnearme.bluetooth.BluetoothDeviceManager;
 import one.tribe.whatsnearme.bluetooth.WhatsNearMeDeviceManager;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.wifi.WifiNetworkManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
     private NetworkChangedReceiver networkChangeReceiver;
+    private BluetoothStateChangedReceiver bluetoothStateChangedReceiver;
 
     private ExpandableListAdapter listAdapter;
     private ExpandableListView expListView;
 
+    private ScannerService scannerService;
+    private boolean serviceBound;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(Constants.TAG, "MainActivity: Creating");
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        networkChangeReceiver = new NetworkChangedReceiver();
-        registerReceiver(networkChangeReceiver, new IntentFilter(Constants.NETWORK_CHANGED));
 
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.networkListView);
@@ -58,38 +62,50 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        WhastNearMeApplication.activityResumed();
-        updateGui();
-        expListView.expandGroup(0);
-        expListView.expandGroup(1);
-        expListView.expandGroup(2);
+    private void registerReceivers() {
+        networkChangeReceiver = new NetworkChangedReceiver();
+        IntentFilter networkChangedFilter = new IntentFilter(Constants.NETWORK_CHANGED);
+        networkChangedFilter.setPriority(Constants.ACTIVITY_PRIORITY);
+        registerReceiver(networkChangeReceiver, networkChangedFilter);
+
+        bluetoothStateChangedReceiver = new BluetoothStateChangedReceiver();
+        registerReceiver(bluetoothStateChangedReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+    }
+
+    private void bindScannerService() {
+        Intent intent = new Intent(this, ScannerService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        WhastNearMeApplication.activityResumed();
+        Log.d(Constants.TAG, "MainActivity: Resuming");
+
+        registerReceivers();
         updateGui();
         expListView.expandGroup(0);
         expListView.expandGroup(1);
         expListView.expandGroup(2);
 
+        bindScannerService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        WhastNearMeApplication.activityPaused();
+
+        Log.d(Constants.TAG, "MainActivity: Pausing");
+        unregisterReceiver(networkChangeReceiver);
+        unregisterReceiver(bluetoothStateChangedReceiver);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(networkChangeReceiver);
-        WhastNearMeApplication.activityPaused();
+        Log.d(Constants.TAG, "MainActivity: Destroying");
+
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -122,22 +138,31 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if( id == R.id.action_stop_scanning) {
+            if(item.getTitle().equals(getString(R.string.action_start_scanning))) {
+                scannerService.startScanning();
+                item.setTitle(getString(R.string.action_stop_scanning));
+            } else {
+                scannerService.stopScanning();
+                item.setTitle(getString(R.string.action_start_scanning));
+            }
+
             return true;
         }
+
+        if (id == R.id.action_exit) {
+
+            stopAndExit();
+
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
 
-    private class NetworkChangedReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try{
-                updateGui();
-            } catch(RuntimeException e) {
-                Log.e(Constants.TAG, "Erro ao atualizar a interface", e);
-            }
-        }
-
+    private void stopAndExit() {
+        scannerService.stop();
+        finishAffinity();
     }
 
     private void updateGui() {
@@ -153,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         listAdapter.updateBlueToothDevices(toStringList(bluetoothDeviceList));
         listAdapter.updatePhoneWithApp(toStringList(phoneWithAppList));
 
-    };
+    }
 
     private List<String>  toStringList(List<Discoverable> discoverables) {
         List<String> stringList = new ArrayList<>();
@@ -165,5 +190,53 @@ public class MainActivity extends AppCompatActivity {
         return stringList;
     }
 
+    private class NetworkChangedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                Log.d(Constants.TAG, "MainActivity: Network Changed broadcast received");
+                updateGui();
+                setResultCode(Constants.ACTIVITY_RESULT_CODE);
+            } catch(RuntimeException e) {
+                Log.e(Constants.TAG, "Error updating interface", e);
+            }
+        }
+
+    }
+
+    /**
+     * Receives a BluetoothAdapter.ACTION_STATE_CHANGED broadcast
+     *
+     * When the bluetooth is turned ON, start discovering devices
+     */
+    private class BluetoothStateChangedReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+
+            if(BluetoothAdapter.STATE_ON == state) {
+                listAdapter.enableBluetoothIcon(Boolean.TRUE);
+            } else if(BluetoothAdapter.STATE_OFF == state) {
+                listAdapter.enableBluetoothIcon(Boolean.FALSE);
+            }
+        }
+    }
+
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            ScannerService.LocalBinder binder = (ScannerService.LocalBinder) service;
+            scannerService = binder.getService();
+            serviceBound = true;
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            scannerService = null;
+            serviceBound = false;
+        }
+    };
 
 }

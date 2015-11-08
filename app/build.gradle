@@ -7,8 +7,8 @@ android {
         applicationId "one.tribe.whatsnearme"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0.0.RC01"
+        versionCode 3
+        versionName "1.0.0.RC03"
     }
     buildTypes {
         release {

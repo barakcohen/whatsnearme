@@ -11,14 +11,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -63,13 +61,11 @@ public class ScannerService extends Service {
     private NetworkChangedReceiver networkChangedReceiver;
     private Handler bluetoothBroadcastHandler;
 
-    private SharedPreferences sharedPref;
-    private static final long WIFI_SCAN_DELAY= 10000;
-    private static final long BLUETOOTH_SCAN_DELAY = 1000;
-    private static final long BLUETOOTH_DISCOVERY_TIME = 12000;
-    private static final int LOG_LIMIT = 100;
+    private AppPreferences preferences;
 
     private BlockingQueue<NetworkEvent> log;
+
+    private boolean scanning = Boolean.TRUE;
 
     @Override
     public void onCreate() {
@@ -82,8 +78,6 @@ public class ScannerService extends Service {
         wifiScanResultsdReceiver = new WifiScanResultsReceiver();
         bluetoothStateChangedReceiver = new BluetoothStateChangedReceiver();
         bluetoothUUIDFetchReceiver = new BluetoothUUIDFetchReceiver();
-        networkChangedReceiver = new NetworkChangedReceiver();
-
 
         registerReceiver(wifiScanningStartReceiver,
                 new IntentFilter(Constants.START_WIFI_SCANNING));
@@ -97,8 +91,11 @@ public class ScannerService extends Service {
                 new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         registerReceiver(bluetoothUUIDFetchReceiver,
                 new IntentFilter(BluetoothDevice.ACTION_UUID));
-        registerReceiver(networkChangedReceiver,
-                new IntentFilter(Constants.NETWORK_CHANGED));
+
+        networkChangedReceiver = new NetworkChangedReceiver();
+        IntentFilter networkChangedFilter = new IntentFilter(Constants.NETWORK_CHANGED);
+        networkChangedFilter.setPriority(Constants.SERVICE_PRIORITY);
+        registerReceiver(networkChangedReceiver, networkChangedFilter);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -111,12 +108,9 @@ public class ScannerService extends Service {
 
         bluetoothBroadcastHandler = new Handler();
 
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences = new AppPreferences(this);
 
-        Log.i(Constants.TAG, "LOG LIMIT: " + sharedPref.getString(getString(R.string.pref_log_limit), "NULL"));
-
-        log = new ArrayBlockingQueue(100);
-
+        log = new ArrayBlockingQueue(preferences.getLogLimit());
 
         Log.i(Constants.TAG, "Scanner service created!");
     }
@@ -170,7 +164,7 @@ public class ScannerService extends Service {
     private void startBluetoothDiscovery() {
         if (mBluetoothAdapter.isDiscovering()) {
             Log.i(Constants.TAG, "A discovery is still running, skipping this discovery");
-            scheduleBluetoothDiscovery(BLUETOOTH_DISCOVERY_TIME);
+            scheduleBluetoothDiscovery(preferences.getBluetoothDiscoveryInterval());
         } else {
             Log.i(Constants.TAG, "Starting another Bluetooth discovery");
             BluetoothDeviceManager.getInstance().startDiscovery(this, mBluetoothAdapter, new BluetoothDiscoveryResultReceiver());
@@ -189,6 +183,19 @@ public class ScannerService extends Service {
         return log;
     }
 
+    public void startScanning() {
+        scanning = true;
+
+        Log.i(Constants.TAG, "Starting scanning wi-fi networks");
+        wifiManager.startScan();
+
+        startBluetoothDiscovery();
+    }
+
+    public void stopScanning() {
+        scanning = false;
+    }
+
     private class BluetoothDiscoveryResultReceiver extends ResultReceiver {
 
         public BluetoothDiscoveryResultReceiver() {
@@ -197,8 +204,10 @@ public class ScannerService extends Service {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            Log.i(Constants.TAG, "Bluetooth device discovery is done, scheduling next execution");
-            scheduleBluetoothDiscovery(BLUETOOTH_SCAN_DELAY);
+            if(scanning) {
+                Log.i(Constants.TAG, "Bluetooth device discovery is done, scheduling next execution");
+                scheduleBluetoothDiscovery(preferences.getBluetoothDiscoveryInterval());
+            }
         }
     }
 
@@ -208,12 +217,14 @@ public class ScannerService extends Service {
         public void onReceive(Context context, Intent intent) {
             Log.i(Constants.TAG, "Received a broadcasts to start scanning Wi-fi networks");
 
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    Log.i(Constants.TAG, "Start scanning Wi-fi networks");
-                    wifiManager.startScan();
-                }
-            }, WIFI_SCAN_DELAY);
+            if(scanning) {
+                new Handler().postDelayed(new Runnable() {
+                    public void run() {
+                        Log.i(Constants.TAG, "Start scanning Wi-fi networks");
+                        wifiManager.startScan();
+                    }
+                }, preferences.getWifiScanInterval());
+            }
         }
     }
 
@@ -228,7 +239,7 @@ public class ScannerService extends Service {
         public void onReceive(Context context, Intent intent) {
             int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
 
-            if(BluetoothAdapter.STATE_ON == state) {
+            if(BluetoothAdapter.STATE_ON == state && scanning) {
                 Log.i(Constants.TAG, "Bluetooth is turned on, requesting discovery");
                 startBluetoothDiscovery();
             }
@@ -242,7 +253,10 @@ public class ScannerService extends Service {
                     intent.getParcelableArrayListExtra(Constants.EXTRA_NETWORK_CHANGES);
             logEvents(networkEvents);
 
-            if(!WhastNearMeApplication.isActivityVisible()) {
+            int resultCode = getResultCode();
+
+            Log.d(Constants.TAG, "Result code: " + resultCode + ", notifications on: " + preferences.isNotificationsOn());
+            if(Constants.ACTIVITY_RESULT_CODE != resultCode && preferences.isNotificationsOn()) {
                 showNotifications(networkEvents);
             }
         }
@@ -269,7 +283,7 @@ public class ScannerService extends Service {
 
     private void notifyEvent(String title, String text) {
         Notification.Builder mBuilder = new Notification.Builder(this)
-                .setSmallIcon(one.tribe.whatsnearme.R.drawable.radar)
+                .setSmallIcon(R.drawable.ic_whastnearme)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setAutoCancel(true);

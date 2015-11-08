@@ -68,7 +68,7 @@ public class BluetoothLEScan {
             Intent networkChangeIntent = new Intent(Constants.NETWORK_CHANGED);
             networkChangeIntent.putParcelableArrayListExtra(Constants.EXTRA_NETWORK_CHANGES, changes.getNetworkEvents());
 
-            serviceContext.sendBroadcast(networkChangeIntent);
+            serviceContext.sendOrderedBroadcast(networkChangeIntent, null);
         }
     }
 
@@ -77,10 +77,8 @@ public class BluetoothLEScan {
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi,
                                      byte[] scanRecord) {
-                    //broadcastNewDevice(device);
-                    Log.i(Constants.TAG, "BLuetooth LE Device found: " + device);
 
-
+                    Log.i(Constants.TAG, "Bluetooth LE Device found: " + device);
                     Discoverable discoveredDevice = new DiscoverableBluetoothDevice(device);
                     discoveredDevices.add(discoveredDevice);
 

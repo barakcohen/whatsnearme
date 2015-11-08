@@ -4,8 +4,6 @@ import one.tribe.whatsnearme.network.NetworkEvent;
 import one.tribe.whatsnearme.network.NetworkEventType;
 import one.tribe.whatsnearme.network.NetworkType;
 
-import java.util.Date;
-
 /**
  *
  */
@@ -15,7 +13,7 @@ public class NotificationFormatter {
      * Message format is:
      * %type% [in range|out of range] at [datetime]: %name% (%MAC Address%)
      */
-    private static final String COMPLETE_MESSAGE_FORMAT = "%s %s at %tr: %s (%s)";
+    private static final String COMPLETE_MESSAGE_FORMAT = "%s %s at %s: %s (%s)";
 
     /*
      * Message format is:
@@ -46,7 +44,7 @@ public class NotificationFormatter {
         return String.format(COMPLETE_MESSAGE_FORMAT,
                 networkEvent.getType().getName(),
                 networkEvent.getEventType().getDesc(),
-                new Date(),
+                networkEvent.getTimestamp(),
                 networkEvent.getNetworkName(),
                 networkEvent.getNetworkAddress());
     }

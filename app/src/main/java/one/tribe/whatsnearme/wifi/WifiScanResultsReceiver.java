@@ -44,7 +44,7 @@ public class WifiScanResultsReceiver extends BroadcastReceiver {
             Log.d(Constants.TAG, "Added Wi-fi Networks: " + changes.getNewItems());
             Log.d(Constants.TAG, "Removed Wi-fi Networks: " + changes.getGoneItems());
 
-            context.sendBroadcast(networkChangeIntent);
+            context.sendOrderedBroadcast(networkChangeIntent, null);
         } else {
             Log.i(Constants.TAG, "No changes in the Wifi networks");
         }

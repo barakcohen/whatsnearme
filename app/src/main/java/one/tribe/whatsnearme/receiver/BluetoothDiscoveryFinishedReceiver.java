@@ -46,7 +46,7 @@ public class BluetoothDiscoveryFinishedReceiver extends BroadcastReceiver {
             Intent networkChangeIntent = new Intent(Constants.NETWORK_CHANGED);
             networkChangeIntent.putParcelableArrayListExtra(Constants.EXTRA_NETWORK_CHANGES, changes.getNetworkEvents());
 
-            context.sendBroadcast(networkChangeIntent);
+            context.sendOrderedBroadcast(networkChangeIntent, null);
         }
     }
 

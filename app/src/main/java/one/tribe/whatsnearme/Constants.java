@@ -7,6 +7,8 @@ import java.util.UUID;
  */
 public class Constants {
 
+
+
     /**
      * Log tag. All classes shall used it to make debugging easier
      */
@@ -40,4 +42,12 @@ public class Constants {
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
     public static final long BLUETOOTH_LE_SCAN_PERIOD = 10000L;
+
+    public static final int SERVICE_PRIORITY = 10;
+
+    public static final int ACTIVITY_PRIORITY = 20;
+
+    public static final int ACTIVITY_RESULT_CODE = 1001;
+
+    public static final int SERVICE_RESULT_CODE = 1002;
 }

@@ -94,9 +94,10 @@ public class BluetoothDeviceManager extends NetworkManager {
      */
     public boolean addDiscoveredClassicDevice(BluetoothDevice device) {
         Log.i(Constants.TAG, "Device discovered: " + device.getName() + ": " + device.getAddress());
-        classicBluetoothDiscovery.addDiscoveredDevice(device);
         DiscoverableBluetoothDevice discoverableBluetoothDevice =
                 new DiscoverableBluetoothDevice(device);
+        classicBluetoothDiscovery.addDiscoveredDevice(discoverableBluetoothDevice);
+
         boolean contains = availableClassicBluetoothDevices.contains(discoverableBluetoothDevice);
         if(!contains) {
             availableClassicBluetoothDevices.add(discoverableBluetoothDevice);
@@ -112,7 +113,7 @@ public class BluetoothDeviceManager extends NetworkManager {
     public void addDiscoveredLEDevice(BluetoothDevice device) {
         DiscoverableBluetoothDevice discoverableBluetoothDevice =
                 new DiscoverableBluetoothDevice(device);
-        if(availableLEBluetoothDevices.contains(discoverableBluetoothDevice)) {
+        if(!availableLEBluetoothDevices.contains(discoverableBluetoothDevice)) {
             availableLEBluetoothDevices.add(discoverableBluetoothDevice);
         }
     }

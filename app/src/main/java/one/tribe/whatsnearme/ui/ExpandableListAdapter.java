@@ -20,12 +20,18 @@ import java.util.Map;
  */
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
+    private static final int WIFI = 0;
+    private static final int BLUETOOTH = 1;
+    private static final int PHONE = 2;
+
     private List<List<String>> groups;
 
     private LayoutInflater inflater;
 
     private Map<Integer, String> groupMap;
-    private Map<Integer, Integer> iconsMap;
+    private Map<Integer, Integer> onIconsMap;
+    private Map<Integer, Integer> offIconsMap;
+    private Map<Integer, Boolean> stateMap;
 
     public ExpandableListAdapter() {
         groups = new ArrayList<>();
@@ -34,42 +40,65 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         groups.add(new ArrayList<String>());
 
         groupMap = new HashMap<>();
-        groupMap.put(0, "Wi-fi Networks");
-        groupMap.put(1, "Bluetooth Devices");
-        groupMap.put(2, "Phones that run the app");
+        groupMap.put(WIFI, "Wi-fi Networks");
+        groupMap.put(BLUETOOTH, "Bluetooth Devices");
+        groupMap.put(PHONE, "Phones that run the app");
 
-        iconsMap = new HashMap<>();
-        iconsMap.put(0, R.drawable.ic_wifi_white_48dp);
-        iconsMap.put(1, R.drawable.ic_bluetooth_white_48dp);
-        iconsMap.put(2, R.drawable.ic_phonelink_ring_white_48dp);
+        onIconsMap = new HashMap<>();
+        onIconsMap.put(WIFI, R.drawable.ic_wifi_white_48dp);
+        onIconsMap.put(BLUETOOTH, R.drawable.ic_bluetooth_white_48dp);
+        onIconsMap.put(PHONE, R.drawable.ic_phonelink_ring_white_48dp);
+
+        offIconsMap = new HashMap<>();
+        offIconsMap.put(WIFI, R.drawable.ic_wifi_white_48dp);
+        offIconsMap.put(BLUETOOTH, R.drawable.ic_bluetooth_disabled_white_48dp);
+        offIconsMap.put(PHONE, R.drawable.ic_phonelink_erase_white_48dp);
+
+        stateMap = new HashMap<>();
+        stateMap.put(WIFI, Boolean.TRUE);
+        stateMap.put(BLUETOOTH, Boolean.TRUE);
+        stateMap.put(PHONE, Boolean.TRUE);
 
     }
 
     public void updateWifiNetworks(List<String> wifiNetworks) {
         if(wifiNetworks.isEmpty()) {
-            groups.set(0, Collections.singletonList("No wi-fi networks in range"));
+            groups.set(WIFI, Collections.singletonList("No wi-fi networks in range"));
         } else {
-            groups.set(0, wifiNetworks);
+            groups.set(WIFI, wifiNetworks);
         }
         notifyDataSetChanged();
     }
 
     public void updateBlueToothDevices(List<String> bluetoothDevices) {
         if(bluetoothDevices.isEmpty()) {
-            groups.set(1, Collections.singletonList("No bluetooth devices in range"));
+            groups.set(BLUETOOTH, Collections.singletonList("No bluetooth devices in range"));
         } else {
-            groups.set(1, bluetoothDevices);
+            groups.set(BLUETOOTH, bluetoothDevices);
         }
         notifyDataSetChanged();
     }
 
     public void updatePhoneWithApp(List<String> phoneWithApp) {
         if(phoneWithApp.isEmpty()) {
-            groups.set(2, Collections.singletonList("No phones with app in range"));
+            groups.set(PHONE, Collections.singletonList("No phones with app in range"));
         } else {
-            groups.set(2, phoneWithApp);
+            groups.set(PHONE, phoneWithApp);
         }
         notifyDataSetChanged();
+    }
+
+    public void enableBluetoothIcon(boolean enable) {
+        stateMap.put(BLUETOOTH, enable);
+        stateMap.put(PHONE, enable);
+
+        if(!enable) {
+            groups.set(BLUETOOTH, Collections.singletonList("Bluetooth is off!"));
+            groups.set(PHONE, Collections.singletonList("Bluetooth is off!"));
+        } else if(groups.isEmpty()) {
+            updateBlueToothDevices(Collections.EMPTY_LIST);
+            updatePhoneWithApp(Collections.EMPTY_LIST);
+        }
     }
 
     public void setLayoutInflater(LayoutInflater inflater) {
@@ -121,8 +150,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         groupHeader.setText(groupMap.get(i));
 
         ImageView groupIcon = (ImageView) view.findViewById(R.id.groupIcon);
-        groupIcon.setImageResource(iconsMap.get(i));
 
+        if(stateMap.get(i)) {
+            groupIcon.setImageResource(onIconsMap.get(i));
+        } else {
+            groupIcon.setImageResource(offIconsMap.get(i));
+        }
         return view;
     }
 

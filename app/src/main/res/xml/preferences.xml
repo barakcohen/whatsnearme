@@ -1,47 +1,52 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="com.onetribe.whatsnearme.WIFI_INTERVAL"
+        android:key="@string/pref_wifi_scan_interval_key"
+        android:numeric="integer"
         android:title="@string/pref_wifi_scan_interval"
         android:defaultValue="@string/pref_default_wifi_scan_interval"
         android:selectAllOnFocus="true"
         android:inputType="number"
         android:singleLine="true"
         android:maxLines="1"
-        android:icon="@drawable/ic_wifi_white_48dp"/>
+        android:icon="@drawable/ic_wifi_black_24dp"/>
 
     <EditTextPreference
-        android:key="com.onetribe.whatsnearme.BLUETOOTH_INTERVAL"
+        android:key="@string/pref_bluetooth_interval_key"
         android:title="@string/pref_bluetooth_interval"
+        android:numeric="integer"
         android:defaultValue="@string/pref_default_bluetooth_interval"
         android:selectAllOnFocus="true"
         android:inputType="number"
         android:singleLine="true"
         android:maxLines="1"
-        android:icon="@drawable/ic_bluetooth_white_48dp"/>
+        android:icon="@drawable/ic_settings_bluetooth_black_24dp"/>
 
     <EditTextPreference
-        android:key="com.onetribe.whatsnearme.BLUETOOTH_LE_SCAN_TIME"
+        android:key="@string/pref_bluetooth_le_scan_time_key"
         android:title="@string/pref_bluetooth_le_scan_time"
+        android:numeric="integer"
         android:defaultValue="@string/pref_default_bluetooth_le_scan_time"
         android:selectAllOnFocus="true"
         android:inputType="number"
         android:singleLine="true"
         android:maxLines="1"
-        android:icon="@drawable/ic_bluetooth_white_48dp"/>
+        android:icon="@drawable/ic_settings_bluetooth_black_24dp"/>
 
     <EditTextPreference
-        android:key="com.onetribe.whatsnearme.LOG_LIMIT"
+        android:key="@string/pref_log_limit_key"
         android:title="@string/pref_log_limit"
+        android:numeric="integer"
         android:defaultValue="@string/pref_default_log_limit"
         android:selectAllOnFocus="true"
         android:inputType="number"
         android:singleLine="true"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:icon="@drawable/ic_info_black_24dp"/>
 
     <SwitchPreference
-        android:key="com.onetribe.whatsnearme.NOTIFICATIONS"
+        android:key="@string/pref_notifications_on_key"
         android:title="@string/pref_notifications_on"
-        android:defaultValue="true"
+        android:defaultValue="@bool/pref_default_notifications_on"
         android:icon="@drawable/ic_notifications_black_24dp"/>
 
 </PreferenceScreen>

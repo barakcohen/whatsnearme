@@ -34,28 +34,38 @@ public class LogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(Constants.TAG, "LogActivity: Creating");
+
         setContentView(R.layout.activity_log);
 
         logTxt = (TextView) findViewById(R.id.logTxt);
         logTxt.setMovementMethod(new ScrollingMovementMethod());
-
-        networkChangedReceiver = new NetworkChangedReceiver();
-        registerReceiver(networkChangedReceiver,
-                new IntentFilter(Constants.NETWORK_CHANGED));
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void registerReceivers() {
+        networkChangedReceiver = new NetworkChangedReceiver();
+        IntentFilter networkChangedFilter = new IntentFilter(Constants.NETWORK_CHANGED);
+        networkChangedFilter.setPriority(Constants.ACTIVITY_PRIORITY);
+        registerReceiver(networkChangedReceiver, networkChangedFilter);
+    }
 
+    private void bindScannerService() {
         Intent intent = new Intent(this, ScannerService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.i(Constants.TAG, "Bound to ScannerService");
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onResume() {
+        super.onResume();
+        Log.d(Constants.TAG, "LogActivity: Resuming");
+        registerReceivers();
+        bindScannerService();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(Constants.TAG, "LogActivity: Pausing");
         unregisterReceiver(networkChangedReceiver);
         unbindService(serviceConnection);
     }
@@ -74,6 +84,8 @@ public class LogActivity extends AppCompatActivity {
             for(NetworkEvent event : networkEvents) {
                 logTxt.append(NotificationFormatter.formatCompleteMessage(event) + "\n");
             }
+
+            setResultCode(Constants.ACTIVITY_RESULT_CODE);
         }
     }
 

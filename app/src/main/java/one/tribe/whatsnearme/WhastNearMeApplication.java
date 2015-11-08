@@ -9,25 +9,11 @@ import android.content.Intent;
  */
 public class WhastNearMeApplication extends Application {
 
-    private static boolean activityVisible = false;
-
     @Override
     public void onCreate() {
         super.onCreate();
 
         Intent intent = new Intent(this, ScannerService.class);
         startService(intent);
-    }
-
-    public static boolean isActivityVisible() {
-        return activityVisible;
-    }
-
-    public static void activityResumed() {
-        activityVisible = true;
-    }
-
-    public static void activityPaused() {
-        activityVisible = false;
     }
 }

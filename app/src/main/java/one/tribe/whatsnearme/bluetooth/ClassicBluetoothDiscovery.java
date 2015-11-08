@@ -46,10 +46,15 @@ public class ClassicBluetoothDiscovery {
     }
 
 
-    public void addDiscoveredDevice(BluetoothDevice device) {
+    public void addDiscoveredDevice(DiscoverableBluetoothDevice device) {
         if(started) {
-            Log.i(Constants.TAG, "Adding discovered device "+device+" to the devices list, discovery " + id);
-            discoveredDevices.add(new DiscoverableBluetoothDevice(device));
+            Log.i(Constants.TAG, "Adding discovered device " + device + " to the devices list, discovery " + id);
+            if(!discoveredDevices.contains(device)) {
+                discoveredDevices.add(device);
+            } else {
+                Log.i(Constants.TAG, "Device " + device + " already listed in discovery " + id);
+            }
+
         } else {
             Log.w(Constants.TAG, "Discovery is finished, device is ignored: "+ device);
         }

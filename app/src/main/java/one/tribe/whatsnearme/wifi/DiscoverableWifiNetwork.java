@@ -12,8 +12,13 @@ import one.tribe.whatsnearme.network.NetworkType;
  */
 public class DiscoverableWifiNetwork extends AbstractDiscoverable {
 
+    private int level;
+    private int frequency;
+
     public DiscoverableWifiNetwork(ScanResult scanResult) {
         super(scanResult.SSID, scanResult.BSSID);
+        this.level = scanResult.level;
+        this.frequency = scanResult.frequency;
     }
 
     @Override
@@ -34,6 +39,15 @@ public class DiscoverableWifiNetwork extends AbstractDiscoverable {
 
     private DiscoverableWifiNetwork(Parcel in) {
         super(in);
+        this.level = in.readInt();
+        this.frequency = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        super.writeToParcel(parcel, i);
+        parcel.writeInt(level);
+        parcel.writeInt(frequency);
     }
 
     @Override

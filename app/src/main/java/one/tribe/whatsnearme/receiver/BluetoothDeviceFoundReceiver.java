@@ -34,7 +34,7 @@ public class BluetoothDeviceFoundReceiver extends BroadcastReceiver {
             Intent networkChangeIntent = new Intent(Constants.NETWORK_CHANGED);
             networkChangeIntent.putParcelableArrayListExtra(Constants.EXTRA_NETWORK_CHANGES, list);
 
-            context.sendBroadcast(networkChangeIntent);
+            context.sendOrderedBroadcast(networkChangeIntent, null);
         }
 
 

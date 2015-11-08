@@ -1,4 +1,4 @@
-package one.tribe.whatsnearme;
+package one.tribe.whatsnearme.ui;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
