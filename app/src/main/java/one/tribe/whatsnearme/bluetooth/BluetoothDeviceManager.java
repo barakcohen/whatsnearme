@@ -3,16 +3,18 @@ package one.tribe.whatsnearme.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import one.tribe.whatsnearme.AppPreferences;
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.network.NetworkChanges;
 import one.tribe.whatsnearme.network.NetworkManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Manages the bluetooth devices that are within the range of the device.
@@ -30,14 +32,16 @@ public class BluetoothDeviceManager extends NetworkManager {
     private BluetoothLEScan bluetoothLEScan;
 
 
-    private List<Discoverable> availableClassicBluetoothDevices;
-    private List<Discoverable> availableLEBluetoothDevices;
+    private Set<Discoverable> availableClassicBluetoothDevices;
+    private Set<Discoverable> availableLEBluetoothDevices;
 
     private long discoverySequence;
 
+    private AppPreferences preferences;
+
     private BluetoothDeviceManager() {
-        availableClassicBluetoothDevices = new ArrayList<>();
-        availableLEBluetoothDevices = new ArrayList<>();
+        availableClassicBluetoothDevices = new HashSet<>();
+        availableLEBluetoothDevices = new HashSet<>();
         discoverySequence = 0;
     }
 
@@ -50,16 +54,16 @@ public class BluetoothDeviceManager extends NetworkManager {
         Log.d(Constants.TAG, "Available Bluetooth LE devices before getChanges: " + availableLEBluetoothDevices);
 
         NetworkChanges networkChanges =
-                getChanges(bluetoothLEScan.getDiscoveredDevices(), new ArrayList<>(availableLEBluetoothDevices));
+                getChanges(bluetoothLEScan.getDiscoveredDevices(), new HashSet<>(availableLEBluetoothDevices));
 
-        availableLEBluetoothDevices = new ArrayList<>(bluetoothLEScan.getDiscoveredDevices());
+        availableLEBluetoothDevices = new HashSet<>(bluetoothLEScan.getDiscoveredDevices());
         Log.d(Constants.TAG, "Available Bluetooth LE devices after getChanges: " + availableLEBluetoothDevices);
 
         return networkChanges;
     }
 
     public NetworkChanges getBluetoothDevicesChanges() {
-        List<Discoverable> discoveredDevices = new ArrayList<>();
+        Set<Discoverable> discoveredDevices = new HashSet<>();
         for(Discoverable device : classicBluetoothDiscovery.getDiscoveredDevices()) {
             discoveredDevices.add(device);
         }
@@ -68,9 +72,9 @@ public class BluetoothDeviceManager extends NetworkManager {
         Log.d(Constants.TAG, "Available Bluetooth devices before getChanges: " + availableClassicBluetoothDevices);
 
         NetworkChanges networkChanges =
-                getChanges(discoveredDevices, new ArrayList<>(availableClassicBluetoothDevices));
+                getChanges(discoveredDevices, new HashSet<>(availableClassicBluetoothDevices));
 
-        availableClassicBluetoothDevices = new ArrayList<>(discoveredDevices);
+        availableClassicBluetoothDevices = new HashSet<>(discoveredDevices);
         Log.d(Constants.TAG, "Available Bluetooth devices after getChanges: " + availableClassicBluetoothDevices);
 
         return networkChanges;
@@ -82,10 +86,25 @@ public class BluetoothDeviceManager extends NetworkManager {
      * @param bluetoothAdapter
      */
     public void startDiscovery(Context context, BluetoothAdapter bluetoothAdapter, ResultReceiver resultReceiver) {
-        classicBluetoothDiscovery = new ClassicBluetoothDiscovery(discoverySequence++);
-        classicBluetoothDiscovery.start(bluetoothAdapter);
+        if(preferences == null) {
+            preferences = new AppPreferences(context);
+        }
 
-        bluetoothLEScan = new BluetoothLEScan(context, bluetoothAdapter, resultReceiver);
+        classicBluetoothDiscovery = new ClassicBluetoothDiscovery(discoverySequence++);
+        classicBluetoothDiscovery.start(bluetoothAdapter, resultReceiver);
+
+        if (shouldStartLeScan(context)) {
+            bluetoothLEScan = new BluetoothLEScan(context, bluetoothAdapter, resultReceiver);
+        } else {
+            bluetoothLEScan = null;
+            Log.i(Constants.TAG, "Bluetooth Low Energy is not going to be performed");
+        }
+
+    }
+
+    private boolean shouldStartLeScan(Context context) {
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+                && preferences.isBluetoothLEOn();
     }
 
     /**
@@ -121,7 +140,7 @@ public class BluetoothDeviceManager extends NetworkManager {
     /**
      * Returns a list of discovered devices
      */
-    public List<DiscoverableBluetoothDevice> getDiscoveredClassicDevices() {
+    public Set<DiscoverableBluetoothDevice> getDiscoveredClassicDevices() {
         if(classicBluetoothDiscovery != null) {
             return classicBluetoothDiscovery.getDiscoveredDevices();
         }
@@ -133,9 +152,24 @@ public class BluetoothDeviceManager extends NetworkManager {
      * Stops the bluetooth device discovery
      */
     public void finishClassicBluetoothDiscovery() {
-        if(classicBluetoothDiscovery != null) {
-            classicBluetoothDiscovery.finish();
+        if(bluetoothLEScan != null) {
+            finishClassicDiscovery(Boolean.FALSE);
             bluetoothLEScan.scanLeDevices();
+        } else {
+            finishClassicDiscovery(Boolean.TRUE);
+        }
+    }
+
+    private void finishClassicDiscovery(boolean notify) {
+        if(classicBluetoothDiscovery == null) {
+            Log.w(Constants.TAG, "There is no discoveries, ignoring finish discovery request");
+            return;
+        }
+
+        if(notify) {
+            classicBluetoothDiscovery.finishAndNotify();
+        } else {
+            classicBluetoothDiscovery.finish();
         }
     }
 
@@ -146,16 +180,16 @@ public class BluetoothDeviceManager extends NetworkManager {
         return classicBluetoothDiscovery != null;
     }
 
-    public List<Discoverable> getAvailableClassicBluetoothDevices() {
+    public Set<Discoverable> getAvailableClassicBluetoothDevices() {
         return availableClassicBluetoothDevices;
     }
 
-    public List<Discoverable> getAvailableLEBluetoothDevices() {
+    public Set<Discoverable> getAvailableLEBluetoothDevices() {
         return availableLEBluetoothDevices;
     }
 
-    public List<Discoverable> getAvailableBluetoothDevices() {
-        List<Discoverable> bluetoothDevices = new ArrayList<>(availableClassicBluetoothDevices);
+    public Set<Discoverable> getAvailableBluetoothDevices() {
+        Set<Discoverable> bluetoothDevices = new HashSet<>(availableClassicBluetoothDevices);
         bluetoothDevices.addAll(availableLEBluetoothDevices);
 
         return bluetoothDevices;

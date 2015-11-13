@@ -1,9 +1,11 @@
 package one.tribe.whatsnearme.wifi;
 
 import android.net.wifi.ScanResult;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.network.AbstractDiscoverable;
 import one.tribe.whatsnearme.network.NetworkType;
 
@@ -12,18 +14,25 @@ import one.tribe.whatsnearme.network.NetworkType;
  */
 public class DiscoverableWifiNetwork extends AbstractDiscoverable {
 
-    private int level;
-    private int frequency;
+    private ScanResult scanResult;
 
     public DiscoverableWifiNetwork(ScanResult scanResult) {
         super(scanResult.SSID, scanResult.BSSID);
-        this.level = scanResult.level;
-        this.frequency = scanResult.frequency;
+        this.scanResult = scanResult;
     }
 
     @Override
     public NetworkType getNetworkType() {
         return NetworkType.WIFI;
+    }
+
+    @Override
+    public String getExtras() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Level: " + scanResult.level);
+        builder.append(", Frequency: " + scanResult.frequency);
+
+        return builder.toString();
     }
 
     public static final Creator<DiscoverableWifiNetwork> CREATOR
@@ -39,19 +48,26 @@ public class DiscoverableWifiNetwork extends AbstractDiscoverable {
 
     private DiscoverableWifiNetwork(Parcel in) {
         super(in);
-        this.level = in.readInt();
-        this.frequency = in.readInt();
+        Bundle b = in.readBundle();
+        scanResult = b.getParcelable(Constants.WIFI_SCAN_RESULT_KEY);
     }
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
-        parcel.writeInt(level);
-        parcel.writeInt(frequency);
+        Bundle b = new Bundle();
+        b.putParcelable(Constants.WIFI_SCAN_RESULT_KEY, scanResult);
+        parcel.writeBundle(b);
     }
 
     @Override
     public String toString() {
-        return super.toString();
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("name: ").append(getName());
+        sb.append(", address: ").append(getAddress());
+        sb.append(", level: " + scanResult.level);
+        sb.append(", frequency: " + scanResult.frequency);
+        sb.append('}');
+        return sb.toString();
     }
 }

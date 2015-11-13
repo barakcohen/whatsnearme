@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -118,7 +119,8 @@ public class ScannerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startConnectionListener();
+        //startConnectionListener();
+        startBluetoothDiscovery();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -129,8 +131,6 @@ public class ScannerService extends Service {
             Executors.newSingleThreadExecutor().execute(connectionListener);
 
             Log.i(Constants.TAG, "Connection started");
-
-            startBluetoothDiscovery();
         }
     }
 
@@ -162,6 +162,13 @@ public class ScannerService extends Service {
     }
 
     private void startBluetoothDiscovery() {
+        if(!mBluetoothAdapter.isEnabled()) {
+            Log.i(Constants.TAG, "Bluetooth is off, turning it on...");
+            boolean enable = mBluetoothAdapter.enable();
+            Log.i(Constants.TAG, "Bluetooth adapter startup begun: " + enable);
+            return;
+        }
+
         if (mBluetoothAdapter.isDiscovering()) {
             Log.i(Constants.TAG, "A discovery is still running, skipping this discovery");
             scheduleBluetoothDiscovery(preferences.getBluetoothDiscoveryInterval());
@@ -218,12 +225,14 @@ public class ScannerService extends Service {
             Log.i(Constants.TAG, "Received a broadcasts to start scanning Wi-fi networks");
 
             if(scanning) {
+                long scanInterval =  preferences.getWifiScanInterval();
+                Log.d(Constants.TAG, "Scanning wi-fi again in: " + scanInterval);
                 new Handler().postDelayed(new Runnable() {
                     public void run() {
                         Log.i(Constants.TAG, "Start scanning Wi-fi networks");
                         wifiManager.startScan();
                     }
-                }, preferences.getWifiScanInterval());
+                }, scanInterval);
             }
         }
     }

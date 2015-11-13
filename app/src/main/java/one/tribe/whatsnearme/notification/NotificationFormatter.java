@@ -13,7 +13,7 @@ public class NotificationFormatter {
      * Message format is:
      * %type% [in range|out of range] at [datetime]: %name% (%MAC Address%)
      */
-    private static final String COMPLETE_MESSAGE_FORMAT = "%s %s at %s: %s (%s)";
+    private static final String COMPLETE_MESSAGE_FORMAT = "%s %s at %s: %s (%s) - [%s]";
 
     /*
      * Message format is:
@@ -46,7 +46,8 @@ public class NotificationFormatter {
                 networkEvent.getEventType().getDesc(),
                 networkEvent.getTimestamp(),
                 networkEvent.getNetworkName(),
-                networkEvent.getNetworkAddress());
+                networkEvent.getNetworkAddress(),
+                networkEvent.getExtras());
     }
 
     public static String formatShortMessage(NetworkEvent networkEvent){

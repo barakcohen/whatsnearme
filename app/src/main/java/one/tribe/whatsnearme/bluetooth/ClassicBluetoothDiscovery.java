@@ -1,34 +1,36 @@
 package one.tribe.whatsnearme.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 
-import one.tribe.whatsnearme.Constants;
+import java.util.HashSet;
+import java.util.Set;
 
-import java.util.ArrayList;
-import java.util.List;
+import one.tribe.whatsnearme.Constants;
 
 /**
  *
  */
 public class ClassicBluetoothDiscovery {
 
-    private List<DiscoverableBluetoothDevice> discoveredDevices;
+    private Set<DiscoverableBluetoothDevice> discoveredDevices;
 
     private boolean started = false;
 
     private long id;
 
+    private ResultReceiver resultReceiver;
+
     public ClassicBluetoothDiscovery(long id) {
         this.id = id;
     }
 
-    public boolean start(BluetoothAdapter bluetoothAdapter) {
+    public boolean start(BluetoothAdapter bluetoothAdapter, ResultReceiver resultReceiver) {
         Log.i(Constants.TAG, "Starting bluetooth discovery " + id);
-        discoveredDevices = new ArrayList<>();
+        discoveredDevices = new HashSet<>();
+        this.resultReceiver = resultReceiver;
 
         Log.i(Constants.TAG, "Starting bluetooth discovery on adapter: " + id);
         started = bluetoothAdapter.startDiscovery();
@@ -42,7 +44,14 @@ public class ClassicBluetoothDiscovery {
      */
     public void finish() {
         started = false;
+        resultReceiver = null;
         Log.i(Constants.TAG, "Classic Bluetooth discovery "+id+" finished");
+    }
+
+    public void finishAndNotify() {
+        Log.i(Constants.TAG, "Send a message to ScannerService that broadcast is over");
+        resultReceiver.send(1, new Bundle());
+        finish();
     }
 
 
@@ -60,7 +69,7 @@ public class ClassicBluetoothDiscovery {
         }
     }
 
-    public List<DiscoverableBluetoothDevice> getDiscoveredDevices() {
+    public Set<DiscoverableBluetoothDevice> getDiscoveredDevices() {
         return discoveredDevices;
     }
 

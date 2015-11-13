@@ -1,5 +1,6 @@
 package one.tribe.whatsnearme.ui;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -9,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -94,6 +96,17 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
     protected void onDestroy() {
         super.onDestroy();
         getDelegate().onDestroy();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            int SUCCESS_RESULT=1;
+            setResult(SUCCESS_RESULT, new Intent());
+            finish();
+            return true;
+        }
+        return false;
     }
 
     public void invalidateOptionsMenu() {

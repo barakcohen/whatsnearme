@@ -18,6 +18,7 @@ public class BluetoothUUIDFetchReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d(Constants.TAG, "BluetoothDevice.ACTION_UUID broadcast received");
 
         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 

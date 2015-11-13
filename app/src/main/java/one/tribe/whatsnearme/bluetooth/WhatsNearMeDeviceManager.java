@@ -5,13 +5,13 @@ import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.network.NetworkChanges;
 import one.tribe.whatsnearme.network.NetworkManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -24,14 +24,14 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
         return instance;
     }
 
-    private List<Discoverable> availableDevices;
-    private List<Discoverable> discoveredDevices;
-    private List<String> devicesWithAppCache;
+    private Set<Discoverable> availableDevices;
+    private Set<Discoverable> discoveredDevices;
+    private Set<String> devicesWithAppCache;
 
     private WhatsNearMeDeviceManager() {
-        availableDevices = new ArrayList<>();
-        discoveredDevices = new ArrayList<>();
-        devicesWithAppCache = new ArrayList<>();
+        availableDevices = new HashSet<>();
+        discoveredDevices = new HashSet<>();
+        devicesWithAppCache = new HashSet<>();
     }
 
     /**
@@ -42,13 +42,13 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
         Log.d(Constants.TAG, "Discovered Bluetooth devices with App: " + discoveredDevices);
         Log.d(Constants.TAG, "Available Bluetooth devices with App before getChanges: " + availableDevices);
         NetworkChanges networkChanges =
-                getChanges(discoveredDevices, new ArrayList<>(availableDevices));
+                getChanges(discoveredDevices, new HashSet<>(availableDevices));
 
 
-        availableDevices  = new ArrayList<>(discoveredDevices);
+        availableDevices  = new HashSet<>(discoveredDevices);
         Log.d(Constants.TAG, "Available Bluetooth devices with App after getChanges: " + availableDevices);
 
-        discoveredDevices = new ArrayList<>();
+        discoveredDevices = new HashSet<>();
 
         return networkChanges;
     }
@@ -60,7 +60,7 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
     }
 
     public void onDiscoveryFinished() {
-        List<DiscoverableBluetoothDevice> discoveredDevices =
+        Set<DiscoverableBluetoothDevice> discoveredDevices =
                 BluetoothDeviceManager.getInstance().getDiscoveredClassicDevices();
 
         Log.i(Constants.TAG, "Looking for another devices using the App");
@@ -114,7 +114,7 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
         }
     }
 
-    public List<Discoverable> getAvailableDevices() {
-        return availableDevices;
+    public Set<Discoverable> getAvailableDevices() {
+        return new HashSet<>(availableDevices);
     }
 }

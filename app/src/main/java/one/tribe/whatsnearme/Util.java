@@ -1,4 +1,4 @@
-package one.tribe.whatsnearme.bluetooth;
+package one.tribe.whatsnearme;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -18,11 +18,13 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     private final String BLUETOOTH_LE_SCAN_TIME;
     private final String LOG_LIMIT;
     private final String NOTIFICATIONS_ON;
+    private final String BLUETOOTH_LE_ON;
     private final String WIFI_SCAN_INTERVAL_DEFAULT_VALUE;
     private final String BLUETOOTH_DISCOVERY_INTERVAL_DEFAULT_VALUE;
     private final String BLUETOOTH_LE_SCAN_TIME_DEFAULT_VALUE;
     private final String LOG_LIMIT_DEFAULT_VALUE;
     private final boolean NOTIFICATIONS_ON_DEFAULT_VALUE;
+    private final boolean BLUETOOTH_LE_ON_DEFAULT_VALUE;
 
     private SharedPreferences preferences;
 
@@ -39,11 +41,13 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
         BLUETOOTH_LE_SCAN_TIME = r.getString(R.string.pref_bluetooth_le_scan_time_key);
         LOG_LIMIT = r.getString(R.string.pref_log_limit_key);
         NOTIFICATIONS_ON = r.getString(R.string.pref_notifications_on_key);
+        BLUETOOTH_LE_ON = r.getString(R.string.pref_bluetooth_le_enable_key);
         WIFI_SCAN_INTERVAL_DEFAULT_VALUE = r.getString(R.string.pref_default_wifi_scan_interval);
         BLUETOOTH_DISCOVERY_INTERVAL_DEFAULT_VALUE = r.getString(R.string.pref_default_bluetooth_interval);
         BLUETOOTH_LE_SCAN_TIME_DEFAULT_VALUE = r.getString(R.string.pref_default_bluetooth_le_scan_time);
         LOG_LIMIT_DEFAULT_VALUE = r.getString(R.string.pref_default_log_limit);
         NOTIFICATIONS_ON_DEFAULT_VALUE = r.getBoolean(R.bool.pref_default_notifications_on);
+        BLUETOOTH_LE_ON_DEFAULT_VALUE = r.getBoolean(R.bool.pref_default_bluetooth_le_enable);
     }
 
     @Override
@@ -75,6 +79,10 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
 
     public boolean isNotificationsOn() {
         return preferences.getBoolean(NOTIFICATIONS_ON, NOTIFICATIONS_ON_DEFAULT_VALUE);
+    }
+
+    public boolean isBluetoothLEOn() {
+        return preferences.getBoolean(BLUETOOTH_LE_ON, BLUETOOTH_LE_ON_DEFAULT_VALUE);
     }
 
     private int getInt(String key, String defaultValue) {

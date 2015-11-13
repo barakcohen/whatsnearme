@@ -1,9 +1,10 @@
 package one.tribe.whatsnearme.network;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import one.tribe.whatsnearme.bluetooth.Util;
+import one.tribe.whatsnearme.Util;
 
 /**
  *
@@ -15,6 +16,7 @@ public class NetworkEvent implements Parcelable {
     private String networkName;
     private String networkAddress;
     private String timestamp;
+    private String extras;
 
     public NetworkEvent(Discoverable discoverable, NetworkEventType eventType) {
         this.type = discoverable.getNetworkType();
@@ -22,6 +24,7 @@ public class NetworkEvent implements Parcelable {
         this.networkAddress = discoverable.getAddress();
         this.eventType = eventType;
         this.timestamp = Util.getDate();
+        this.extras = discoverable.getExtras();
     }
 
     protected NetworkEvent(Parcel in) {
@@ -30,6 +33,7 @@ public class NetworkEvent implements Parcelable {
         networkName = in.readString();
         networkAddress = in.readString();
         timestamp = in.readString();
+        extras = in.readString();
     }
 
     public static final Creator<NetworkEvent> CREATOR = new Creator<NetworkEvent>() {
@@ -56,6 +60,7 @@ public class NetworkEvent implements Parcelable {
         parcel.writeString(networkName);
         parcel.writeString(networkAddress);
         parcel.writeString(timestamp);
+        parcel.writeString(extras);
     }
 
     public NetworkType getType() {
@@ -76,5 +81,9 @@ public class NetworkEvent implements Parcelable {
 
     public String getTimestamp() {
         return timestamp;
+    }
+
+    public String getExtras() {
+        return extras;
     }
 }

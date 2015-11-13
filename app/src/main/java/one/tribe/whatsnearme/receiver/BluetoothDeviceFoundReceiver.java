@@ -4,8 +4,11 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.bluetooth.BluetoothDeviceManager;
@@ -23,13 +26,14 @@ public class BluetoothDeviceFoundReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
+        Log.d(Constants.TAG, "BluetoothDevice.ACTION_FOUND broadcast received");
+
         boolean isDiscovered = BluetoothDeviceManager.getInstance().addDiscoveredClassicDevice(device);
 
         // If the device is new, notify immediately
         if(!isDiscovered) {
             NetworkEvent newDevice = new NetworkEvent(new DiscoverableBluetoothDevice(device), NetworkEventType.NEW);
-            ArrayList<NetworkEvent> list = new ArrayList<>(1);
-            list.add(newDevice);
+            ArrayList<NetworkEvent> list = new ArrayList<>(Collections.singletonList(newDevice));
 
             Intent networkChangeIntent = new Intent(Constants.NETWORK_CHANGED);
             networkChangeIntent.putParcelableArrayListExtra(Constants.EXTRA_NETWORK_CHANGES, list);

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +19,9 @@ import android.view.MenuItem;
 import android.widget.ExpandableListView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.R;
@@ -30,6 +33,8 @@ import one.tribe.whatsnearme.wifi.WifiNetworkManager;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int DISCOVERABLE_REQUEST_CODE = 1311;
+
     private NetworkChangedReceiver networkChangeReceiver;
     private BluetoothStateChangedReceiver bluetoothStateChangedReceiver;
 
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ScannerService scannerService;
     private boolean serviceBound;
+    private boolean deviceDiscoverableOption = Boolean.TRUE;;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +95,37 @@ public class MainActivity extends AppCompatActivity {
         expListView.expandGroup(2);
 
         bindScannerService();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                if(mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+                    Log.i(Constants.TAG, "Device is not discoverable nor connectible");
+
+                    if(deviceDiscoverableOption) {
+                        Intent discoverableIntent = new
+                                Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+                        startActivityForResult(discoverableIntent, DISCOVERABLE_REQUEST_CODE);
+                    }
+                }
+            }
+        }, 1000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == DISCOVERABLE_REQUEST_CODE) {
+            if(resultCode == RESULT_CANCELED){
+                this.deviceDiscoverableOption = Boolean.FALSE;
+            } else {
+                this.deviceDiscoverableOption = Boolean.TRUE;
+            }
+        }
+
     }
 
     @Override
@@ -149,8 +186,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        if (id == R.id.action_exit) {
+        if (id == R.id.action_about) {
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
 
+            return true;
+        }
+
+        if (id == R.id.action_exit) {
             stopAndExit();
 
             return true;
@@ -167,11 +210,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateGui() {
 
-        List<Discoverable> wifiNetworkList =
+        Set<Discoverable> wifiNetworkList =
                 WifiNetworkManager.getInstance().getAvailableNetworks();
-        List<Discoverable> bluetoothDeviceList =
+        Set<Discoverable> bluetoothDeviceList =
                 BluetoothDeviceManager.getInstance().getAvailableBluetoothDevices();
-        List<Discoverable> phoneWithAppList =
+        Set<Discoverable> phoneWithAppList =
                 WhatsNearMeDeviceManager.getInstance().getAvailableDevices();
 
         listAdapter.updateWifiNetworks(toStringList(wifiNetworkList));
@@ -180,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private List<String>  toStringList(List<Discoverable> discoverables) {
+    private List<String>  toStringList(Set<Discoverable> discoverables) {
         List<String> stringList = new ArrayList<>();
 
         for(Discoverable discoverable : discoverables) {

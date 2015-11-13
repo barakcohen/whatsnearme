@@ -26,7 +26,7 @@ public class BluetoothDiscoveryFinishedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(Constants.TAG, "Finished bluetooth discovery");
+        Log.i(Constants.TAG, "BluetoothDevice.ACTION_DISCOVERY_FINISHED broadcast received");
 
         if(BluetoothDeviceManager.getInstance().hasClassicBluetoothDiscovery()) {
 

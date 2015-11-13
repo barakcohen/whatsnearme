@@ -22,12 +22,11 @@ public class BluetoothConnectionListener implements Runnable {
     }
 
     private void createServerSocket() {
-        Log.i(Constants.TAG, "Creating insecure RFCOMM server socket");
+        Log.i(Constants.TAG, "Creating secure RFCOMM server socket");
 
         try {
-            serverSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(
+            serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(
                     "WhatsNearMe", Constants.MY_UUID_INSECURE);
-
             Log.i(Constants.TAG, "Insecure RFCOMM server socket created");
         } catch (IOException e) {
             Log.e(Constants.TAG, "Creating insecure RFCOMM server Socket failed", e);

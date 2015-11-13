@@ -21,6 +21,12 @@
         android:maxLines="1"
         android:icon="@drawable/ic_settings_bluetooth_black_24dp"/>
 
+    <SwitchPreference
+        android:key="@string/pref_bluetooth_le_enable_key"
+        android:title="@string/pref_bluetooth_le_enable"
+        android:defaultValue="@bool/pref_default_bluetooth_le_enable"
+        android:icon="@drawable/ic_settings_bluetooth_black_24dp"/>
+
     <EditTextPreference
         android:key="@string/pref_bluetooth_le_scan_time_key"
         android:title="@string/pref_bluetooth_le_scan_time"

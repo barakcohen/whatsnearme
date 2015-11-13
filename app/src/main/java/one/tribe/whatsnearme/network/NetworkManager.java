@@ -1,7 +1,7 @@
 package one.tribe.whatsnearme.network;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -9,11 +9,11 @@ import java.util.List;
 public class NetworkManager {
 
 
-    public NetworkChanges getChanges(List<Discoverable> newList, List<Discoverable> currentList) {
-        List<Discoverable> toRemove = new ArrayList<>(currentList);
+    public NetworkChanges getChanges(Set<Discoverable> newList, Set<Discoverable> currentList) {
+        Set<Discoverable> toRemove = new HashSet<>(currentList);
         toRemove.removeAll(newList);
 
-        List<Discoverable> toAdd = new ArrayList<>(newList);
+        Set<Discoverable> toAdd = new HashSet<>(newList);
         toAdd.removeAll(currentList);
 
         return new NetworkChanges(toAdd, toRemove);

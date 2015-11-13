@@ -2,6 +2,7 @@ package one.tribe.whatsnearme.network;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Abstraction of a network change between two scanning/discovery operations.
@@ -9,10 +10,10 @@ import java.util.List;
 public class NetworkChanges {
 
     private ArrayList<NetworkEvent> networkEvents;
-    private List<Discoverable> newItems;
-    private List<Discoverable> goneItems;
+    private Set<Discoverable> newItems;
+    private Set<Discoverable> goneItems;
 
-    public NetworkChanges(List<Discoverable> newItems, List<Discoverable> goneItems) {
+    public NetworkChanges(Set<Discoverable> newItems, Set<Discoverable> goneItems) {
         networkEvents = new ArrayList<>();
 
         addEvents(newItems, NetworkEventType.NEW);
@@ -21,7 +22,7 @@ public class NetworkChanges {
         this.newItems = newItems;
     }
 
-    private void addEvents(List<Discoverable> list, NetworkEventType eventType) {
+    private void addEvents(Set<Discoverable> list, NetworkEventType eventType) {
         for (Discoverable discoverable : list) {
             networkEvents.add(new NetworkEvent(discoverable, eventType));
         }
@@ -42,11 +43,11 @@ public class NetworkChanges {
       return networkEvents;
     }
 
-    public List<Discoverable> getNewItems() {
+    public Set<Discoverable> getNewItems() {
         return this.newItems;
     }
 
-    public List<Discoverable> getGoneItems() {
+    public Set<Discoverable> getGoneItems() {
         return this.goneItems;
     }
 

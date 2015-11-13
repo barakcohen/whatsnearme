@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Whats Near Me</string>
+    <string name="copyright">Whats Near Me &#169; 2015 Barak Cohen</string>
+    <string name="rights">All rights reserved.</string>
     <string name="no_wifi_near">No wi-fi networks in range</string>
     <string name="no_bluetooth_near">No bluetooth devices in range</string>
     <string name="no_phone_with_app_near">No phones with app in range</string>
@@ -7,9 +9,10 @@
     <!-- Menu Options -->
     <string name="action_settings">Settings</string>
     <string name="action_log">See log</string>
-    <string name="title_activity_settings">Settings</string>
     <string name="action_stop_scanning">Stop Scanning</string>
     <string name="action_start_scanning">Start Scanning</string>
+    <string name="action_about">About</string>
+    <string name="action_exit">Exit</string>
 
     <!-- Log Activity -->
     <string name="log_title">Log</string>
@@ -19,6 +22,7 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
+    <string name="title_activity_settings">Settings</string>
     <string name="pref_wifi_scan_interval_key">com.onetribe.whatsnearme.WIFI_INTERVAL</string>
     <string name="pref_wifi_scan_interval">Interval between Wi-fi scans</string>
     <string name="pref_default_wifi_scan_interval">10</string>
@@ -34,6 +38,9 @@
     <string name="pref_notifications_on_key">com.onetribe.whatsnearme.NOTIFICATIONS</string>
     <string name="pref_notifications_on">Notifications</string>
     <bool name="pref_default_notifications_on">true</bool>
-    <string name="action_exit">Exit</string>
+    <string name="pref_bluetooth_le_enable_key">com.onetribe.whatsnearme.BLUETOOTH_LE_ENABLED</string>
+    <string name="pref_bluetooth_le_enable">Scan Bluetooth LE Devices</string>
+    <bool name="pref_default_bluetooth_le_enable">true</bool>
+
 
 </resources>

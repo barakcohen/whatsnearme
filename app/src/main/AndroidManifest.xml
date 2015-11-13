@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
+    <!-- For debugging purposes only -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:name=".WhastNearMeApplication"
         android:allowBackup="true"
@@ -40,6 +43,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="one.tribe.whatsnearme.ui.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.AboutActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

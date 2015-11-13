@@ -50,4 +50,6 @@ public class Constants {
     public static final int ACTIVITY_RESULT_CODE = 1001;
 
     public static final int SERVICE_RESULT_CODE = 1002;
+    public static final String BLUETOOTH_DEVICE_KEY = "BLUETOOTH_DEVICE";
+    public static final String WIFI_SCAN_RESULT_KEY = "WIFI_SCAN_RESULT";
 }

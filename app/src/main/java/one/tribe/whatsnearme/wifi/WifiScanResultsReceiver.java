@@ -10,6 +10,7 @@ import android.util.Log;
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.network.NetworkChanges;
 
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ public class WifiScanResultsReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.i(Constants.TAG, "Broadcast SCAN_RESULTS_AVAILABLE_ACTION received");
         WifiManager wifiManager = getWifiManager(context);
 
         if(wifiManager == null) {
@@ -34,7 +36,7 @@ public class WifiScanResultsReceiver extends BroadcastReceiver {
 
         List<ScanResult> scanResults = wifiManager.getScanResults();
 
-        NetworkChanges changes = WifiNetworkManager.getInstance().getNetworkChanges(scanResults);
+        NetworkChanges changes = WifiNetworkManager.getInstance().getNetworkChanges(new HashSet<>(scanResults));
 
         if(changes.hasChanges()) {
 
@@ -48,9 +50,6 @@ public class WifiScanResultsReceiver extends BroadcastReceiver {
         } else {
             Log.i(Constants.TAG, "No changes in the Wifi networks");
         }
-
-        Intent startBluetoothDiscovery = new Intent(Constants.START_WIFI_SCANNING);
-        context.sendBroadcast(startBluetoothDiscovery);
     }
 
     private WifiManager getWifiManager(Context context) {
