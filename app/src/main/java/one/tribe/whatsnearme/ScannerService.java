@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 
 import one.tribe.whatsnearme.bluetooth.BluetoothConnectionListener;
 import one.tribe.whatsnearme.bluetooth.BluetoothDeviceManager;
+import one.tribe.whatsnearme.bluetooth.BluetoothDiscoverySentinel;
 import one.tribe.whatsnearme.network.NetworkEvent;
 import one.tribe.whatsnearme.notification.NotificationFormatter;
 import one.tribe.whatsnearme.receiver.BluetoothDeviceFoundReceiver;
@@ -67,6 +68,8 @@ public class ScannerService extends Service {
     private BlockingQueue<NetworkEvent> log;
 
     private boolean scanning = Boolean.TRUE;
+
+    private BluetoothDiscoverySentinel discoverySentinel;
 
     @Override
     public void onCreate() {
@@ -113,6 +116,9 @@ public class ScannerService extends Service {
 
         log = new ArrayBlockingQueue(preferences.getLogLimit());
 
+        long bluetoothDiscoveryTimeout = 17000;
+        discoverySentinel = new BluetoothDiscoverySentinel(bluetoothDiscoveryTimeout);
+
         Log.i(Constants.TAG, "Scanner service created!");
     }
 
@@ -135,12 +141,15 @@ public class ScannerService extends Service {
     }
 
     public void stop() {
+        Log.i(Constants.TAG, "Stopping ScannerService!");
         this.stopSelf();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        Log.i(Constants.TAG, "ScannerService onDestroy");
         unregisterReceiver(wifiScanningStartReceiver);
         unregisterReceiver(deviceFoundReceiver);
         unregisterReceiver(discoveryFinishedReceiver);
@@ -152,8 +161,6 @@ public class ScannerService extends Service {
         if(connectionListener != null) {
             connectionListener.stop();
         }
-
-
     }
 
     @Override
@@ -174,7 +181,9 @@ public class ScannerService extends Service {
             scheduleBluetoothDiscovery(preferences.getBluetoothDiscoveryInterval());
         } else {
             Log.i(Constants.TAG, "Starting another Bluetooth discovery");
-            BluetoothDeviceManager.getInstance().startDiscovery(this, mBluetoothAdapter, new BluetoothDiscoveryResultReceiver());
+            BluetoothDeviceManager.getInstance().
+                    startDiscovery(this, mBluetoothAdapter, new BluetoothDiscoveryResultReceiver());
+            discoverySentinel.notifyDiscoveryStart();
         }
     }
 
@@ -212,8 +221,11 @@ public class ScannerService extends Service {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if(scanning) {
+                discoverySentinel.notifyDiscoveryFinish();
+
                 Log.i(Constants.TAG, "Bluetooth device discovery is done, scheduling next execution");
                 scheduleBluetoothDiscovery(preferences.getBluetoothDiscoveryInterval());
+
             }
         }
     }
@@ -292,7 +304,7 @@ public class ScannerService extends Service {
 
     private void notifyEvent(String title, String text) {
         Notification.Builder mBuilder = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_whastnearme)
+                .setSmallIcon(R.drawable.ic_whatsnearme_24dp)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setAutoCancel(true);

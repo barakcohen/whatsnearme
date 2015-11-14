@@ -41,6 +41,7 @@
     <string name="pref_bluetooth_le_enable_key">com.onetribe.whatsnearme.BLUETOOTH_LE_ENABLED</string>
     <string name="pref_bluetooth_le_enable">Scan Bluetooth LE Devices</string>
     <bool name="pref_default_bluetooth_le_enable">true</bool>
+    <string name="title_activity_known_devices">KnownDevicesActivity</string>
 
 
 </resources>

@@ -29,7 +29,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
-        android:src="@drawable/ic_whastnearme"
+        android:src="@drawable/ic_whatsnearme_24dp"
         android:layout_gravity="center"
         android:minHeight="100dp"
         android:padding="10dp"

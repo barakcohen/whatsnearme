@@ -174,6 +174,17 @@ public class BluetoothDeviceManager extends NetworkManager {
     }
 
     /**
+     * This method forces a discovery to finish (does not wait for the discovery
+     * finished broadcast) and clear all the discovered devices
+     */
+    public void forceDiscoveryFinish() {
+        Log.i(Constants.TAG, "Forcing discovery to finish");
+        availableClassicBluetoothDevices = new HashSet<>();
+        availableLEBluetoothDevices = new HashSet<>();
+        finishClassicDiscovery(true);
+    }
+
+    /**
      * Returns true if any discovery has already started
      */
     public boolean hasClassicBluetoothDiscovery() {
