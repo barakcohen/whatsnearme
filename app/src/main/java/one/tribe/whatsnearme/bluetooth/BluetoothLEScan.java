@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import one.tribe.whatsnearme.AppPreferences;
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.network.NetworkChanges;
@@ -37,11 +38,14 @@ public class BluetoothLEScan {
 
     private DefaultScanCallback scanCallback;
 
+    private AppPreferences preferences;
+
     public BluetoothLEScan(Context serviceContext, BluetoothAdapter bluetoothAdapter, ResultReceiver receiver) {
         this.serviceContext = serviceContext;
         this.bluetoothAdapter = bluetoothAdapter;
         discoveredDevices = new HashSet<>();
         this.receiver = receiver;
+        preferences = new AppPreferences(serviceContext);
     }
 
     public void scanLeDevices() {
@@ -52,15 +56,7 @@ public class BluetoothLEScan {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i(Constants.TAG, "Stop scanning for Bluetooth LE Devices");
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Log.i(Constants.TAG, "Stop scanning for Bluetooth LE Devices (API 21+)");
-                    bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
-                } else {
-                    Log.i(Constants.TAG, "Stop scanning for Bluetooth LE Devices (API 21-)");
-                    bluetoothAdapter.stopLeScan(mLeScanCallback);
-                }
+                stopLEScan();
 
                 Log.d(Constants.TAG, "Total of Bluetooth LE Devices Discovered: " + discoveredDevices.size());
 
@@ -69,7 +65,7 @@ public class BluetoothLEScan {
                 receiver.send(1, new Bundle());
 
             }
-        }, Constants.BLUETOOTH_LE_SCAN_PERIOD);
+        }, preferences.getBluetoothLEScanTime());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Log.i(Constants.TAG, "Starting scanning for Bluetooth LE Devices (API 21+)");
@@ -105,6 +101,18 @@ public class BluetoothLEScan {
         // broadcast the new device for all listening components
         NetworkChanges changes = new NetworkChanges(Collections.singleton(discoveredDevice), Collections.EMPTY_SET);
         broadcastDeviceChanges(changes);
+    }
+
+    public void stopLEScan() {
+        Log.i(Constants.TAG, "Stop scanning for Bluetooth LE Devices");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Log.i(Constants.TAG, "Stop scanning for Bluetooth LE Devices (API 21+)");
+            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+        } else {
+            Log.i(Constants.TAG, "Stop scanning for Bluetooth LE Devices (API 21-)");
+            bluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
     }
 
     public Set<Discoverable> getDiscoveredDevices() {

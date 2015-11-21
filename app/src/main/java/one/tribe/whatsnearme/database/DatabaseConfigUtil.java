@@ -1,4 +1,4 @@
-package one.tribe.whatsnearme.model;
+package one.tribe.whatsnearme.database;
 
 import com.j256.ormlite.android.apptools.OrmLiteConfigUtil;
 

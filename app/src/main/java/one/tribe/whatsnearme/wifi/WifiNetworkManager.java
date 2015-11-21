@@ -6,6 +6,7 @@ import android.util.Log;
 import java.util.HashSet;
 import java.util.Set;
 
+import one.tribe.whatsnearme.AppPreferences;
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.network.NetworkChanges;
@@ -25,6 +26,8 @@ public class WifiNetworkManager extends NetworkManager {
     private WifiNetworkManager() {
         availableNetworks = new HashSet<>();
     }
+
+    private AppPreferences preferences;
 
     public static WifiNetworkManager getInstance() {
         return instance;
@@ -54,10 +57,18 @@ public class WifiNetworkManager extends NetworkManager {
         Set<Discoverable> newConnections = new HashSet<>();
 
         for(ScanResult newScanResult : newScanResults) {
-            newConnections.add(fromScanResult(newScanResult));
+            filter(newConnections, newScanResult);
         }
 
         return newConnections;
+    }
+
+    private void filter(Set<Discoverable> newConnections, ScanResult newScanResult) {
+        int minLevel = preferences.getWifiMinLevel();
+
+        if(newScanResult.level > minLevel) {
+            newConnections.add(fromScanResult(newScanResult));
+        }
     }
 
     private Discoverable fromScanResult(ScanResult scanResult) {
@@ -68,5 +79,13 @@ public class WifiNetworkManager extends NetworkManager {
 
     public Set<Discoverable> getAvailableNetworks() {
         return new HashSet<>(availableNetworks);
+    }
+
+    public void setPreferences(AppPreferences preferences) {
+        this.preferences = preferences;
+    }
+
+    public void stopScanning() {
+        availableNetworks = new HashSet<>();
     }
 }

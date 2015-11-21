@@ -1,9 +1,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="@string/pref_wifi_scan_interval_key"
+        android:key="@string/pref_wifi_min_level_key"
         android:numeric="integer"
-        android:title="@string/pref_wifi_scan_interval"
-        android:defaultValue="@string/pref_default_wifi_scan_interval"
+        android:title="@string/pref_wifi_min_level"
+        android:defaultValue="@string/pref_default_wifi_min_level"
         android:selectAllOnFocus="true"
         android:inputType="number"
         android:singleLine="true"
@@ -15,6 +15,17 @@
         android:title="@string/pref_bluetooth_interval"
         android:numeric="integer"
         android:defaultValue="@string/pref_default_bluetooth_interval"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:icon="@drawable/ic_settings_bluetooth_black_24dp"/>
+
+    <EditTextPreference
+        android:key="@string/pref_bluetooth_discoverable_time_key"
+        android:title="@string/pref_bluetooth_discoverable_time"
+        android:numeric="integer"
+        android:defaultValue="@string/pref_default_bluetooth_discoverable_time"
         android:selectAllOnFocus="true"
         android:inputType="number"
         android:singleLine="true"

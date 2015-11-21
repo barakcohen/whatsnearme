@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:columnCount="3"
+    android:rowCount="2"
+    android:layout_marginTop="10dp"
+    android:id="@+id/editDeviceLayout">
+
+    <TextView
+        android:id="@+id/editDeviceWithAppIdLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/device_with_app_id_label_txt"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="@dimen/labels"
+        android:layout_alignBottom="@+id/editPhoneIdTxt"/>
+
+    <EditText
+        android:id="@+id/editPhoneIdTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_toRightOf="@+id/editDeviceWithAppIdLabel"
+        android:textSize="@dimen/forms"
+        android:textAlignment="center"
+        android:hint="@string/phone_id_txt_hint"
+        android:enabled="true"
+        android:maxLength="20"
+        android:layout_alignStart="@+id/editMacAddress"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:id="@+id/editMacAddressLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mac_address_label_txt"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        android:textSize="@dimen/labels"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_alignBottom="@+id/editMacAddress" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/editMacAddressLabel"
+        android:layout_below="@+id/editDeviceWithAppIdLabel"
+        android:id="@+id/editMacAddress"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:layout_alignParentRight="true">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editMacAddressFirstPart"
+            android:singleLine="true"
+            android:textSize="@dimen/forms"
+            android:maxLength="2"
+            android:digits="@string/hexa_chars"
+            android:inputType="textCapCharacters"
+            android:hint="@string/mac_address_txt_hint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:layout_marginLeft="-3dp"
+            android:layout_marginRight="-3dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textCapCharacters"
+            android:id="@+id/editMacAddressSecondPart"
+            android:singleLine="true"
+            android:textSize="@dimen/forms"
+            android:maxLength="2"
+            android:digits="@string/hexa_chars"
+            android:hint="@string/mac_address_txt_hint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:layout_marginLeft="-3dp"
+            android:layout_marginRight="-3dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textCapCharacters"
+            android:id="@+id/editMacAddressThirdPart"
+            android:textSize="@dimen/forms"
+            android:singleLine="true"
+            android:maxLength="2"
+            android:digits="@string/hexa_chars"
+            android:hint="@string/mac_address_txt_hint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:layout_marginLeft="-3dp"
+            android:layout_marginRight="-3dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editMacAddressFourthPart"
+            android:textSize="@dimen/forms"
+            android:singleLine="true"
+            android:maxLength="2"
+            android:digits="@string/hexa_chars"
+            android:inputType="textCapCharacters"
+            android:hint="@string/mac_address_txt_hint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:layout_marginLeft="-3dp"
+            android:layout_marginRight="-3dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textCapCharacters"
+            android:id="@+id/editMacAddressFifthPart"
+            android:textSize="@dimen/forms"
+            android:singleLine="true"
+            android:maxLength="2"
+            android:digits="@string/hexa_chars"
+            android:hint="@string/mac_address_txt_hint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:layout_marginLeft="-3dp"
+            android:layout_marginRight="-3dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editMacAddressSixthPart"
+            android:textSize="@dimen/forms"
+            android:singleLine="true"
+            android:maxLength="2"
+            android:digits="@string/hexa_chars"
+            android:inputType="textCapCharacters"
+            android:hint="@string/mac_address_txt_hint" />
+
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,23 +16,24 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import one.tribe.whatsnearme.AppPreferences;
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.R;
 import one.tribe.whatsnearme.ScannerService;
 import one.tribe.whatsnearme.bluetooth.BluetoothDeviceManager;
 import one.tribe.whatsnearme.bluetooth.WhatsNearMeDeviceManager;
+import one.tribe.whatsnearme.deviceswithapp.DevicesWithAppActivity;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.wifi.WifiNetworkManager;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final int DISCOVERABLE_REQUEST_CODE = 1311;
 
     private NetworkChangedReceiver networkChangeReceiver;
     private BluetoothStateChangedReceiver bluetoothStateChangedReceiver;
@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ScannerService scannerService;
     private boolean serviceBound;
-    private boolean deviceDiscoverableOption = Boolean.TRUE;;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,37 +94,49 @@ public class MainActivity extends AppCompatActivity {
         expListView.expandGroup(2);
 
         bindScannerService();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                if(mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-                    Log.i(Constants.TAG, "Device is not discoverable nor connectible");
-
-                    if(deviceDiscoverableOption) {
-                        Intent discoverableIntent = new
-                                Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-                        startActivityForResult(discoverableIntent, DISCOVERABLE_REQUEST_CODE);
-                    }
-                }
-            }
-        }, 1000);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void makeDiscoverable() {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        if(requestCode == DISCOVERABLE_REQUEST_CODE) {
-            if(resultCode == RESULT_CANCELED){
-                this.deviceDiscoverableOption = Boolean.FALSE;
-            } else {
-                this.deviceDiscoverableOption = Boolean.TRUE;
+        if(bluetoothAdapter == null) {
+            Log.w(Constants.TAG, "Device does not support Bluetooth!");
+            return;
+        }
+
+        if(bluetoothAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            Toast.makeText(this, R.string.toast_device_already_discoverable, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AppPreferences preferences = new AppPreferences(this);
+        int timeOut = preferences.getBluetoothDiscoverableTime();
+
+        Log.i(Constants.TAG, "Making device discoverable for " + timeOut + " seconds");
+
+        Class <?> bluetoothAdapterClass = BluetoothAdapter.class;
+        Method[] methods = bluetoothAdapterClass.getDeclaredMethods();
+        Method mSetScanMode = null;
+
+        for(Method method : methods) {
+            if(method.getName().equals("setScanMode") && method.getParameterTypes().length == 2) {
+                mSetScanMode = method;
+                break;
             }
         }
 
+        if(mSetScanMode == null) {
+            Log.w(Constants.TAG, "Method setScanMode(int, int) not found!");
+            return;
+        }
+
+        try {
+            mSetScanMode.invoke(bluetoothAdapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE, timeOut);
+
+            Toast.makeText(this, R.string.toast_device_discoverable, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(Constants.TAG, "Error invoking BluetoothAdapter.setScanMode(int, int)", e);
+        }
     }
 
     @Override
@@ -170,6 +181,19 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, LogActivity.class);
             startActivity(intent);
+
+            return true;
+        }
+
+        if(id == R.id.action_add_device_with_app) {
+            Intent intent = new Intent(this, DevicesWithAppActivity.class);
+            startActivity(intent);
+
+            return true;
+        }
+
+        if( id == R.id.action_make_device_visible) {
+            makeDiscoverable();
 
             return true;
         }

@@ -32,6 +32,12 @@ public class ClassicBluetoothDiscovery {
         discoveredDevices = new HashSet<>();
         this.resultReceiver = resultReceiver;
 
+        if(bluetoothAdapter.isDiscovering()) {
+            Log.w(Constants.TAG, "A discovery is still running, cancelling it");
+            boolean cancelled = bluetoothAdapter.cancelDiscovery();
+            Log.d(Constants.TAG, "Discovery cancelled: " + cancelled);
+        }
+
         Log.i(Constants.TAG, "Starting bluetooth discovery on adapter: " + id);
         started = bluetoothAdapter.startDiscovery();
         Log.i(Constants.TAG, "Bluetooth discovery " + id + " started: " + started);
@@ -49,9 +55,13 @@ public class ClassicBluetoothDiscovery {
     }
 
     public void finishAndNotify() {
-        Log.i(Constants.TAG, "Send a message to ScannerService that broadcast is over");
-        resultReceiver.send(1, new Bundle());
-        finish();
+        if(started) {
+            Log.i(Constants.TAG, "Send a message to ScannerService that broadcast is over");
+            resultReceiver.send(1, new Bundle());
+            finish();
+        } else {
+            Log.w(Constants.TAG, "Discovery already finished. Maybe the discovery finish is late?");
+        }
     }
 
 

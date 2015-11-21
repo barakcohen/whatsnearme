@@ -1,4 +1,4 @@
-package one.tribe.whatsnearme.model;
+package one.tribe.whatsnearme.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,6 +12,7 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 
 import one.tribe.whatsnearme.R;
+import one.tribe.whatsnearme.deviceswithapp.persistency.DeviceWithApp;
 
 /**
  *
@@ -31,7 +32,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             Log.i(DatabaseHelper.class.getName(), "Creating database tables");
 
-            TableUtils.createTable(connectionSource, KnownDevice.class);
+            TableUtils.createTable(connectionSource, DeviceWithApp.class);
 
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "App database cannot be created", e);
@@ -45,7 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             Log.i(DatabaseHelper.class.getName(), "Updating database tables");
 
-            TableUtils.dropTable(connectionSource, KnownDevice.class, true);
+            TableUtils.dropTable(connectionSource, DeviceWithApp.class, true);
 
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "App database cannot be updated", e);

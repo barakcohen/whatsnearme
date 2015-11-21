@@ -5,14 +5,23 @@
         android:orderInCategory="100" app:showAsAction="never" />
 
     <item android:id="@+id/action_log" android:title="@string/action_log"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="200" app:showAsAction="never" />
+
+    <item android:id="@+id/action_add_device_with_app" android:title="@string/action_add_device_with_app"
+        android:orderInCategory="200" app:showAsAction="never" />
 
     <item android:id="@+id/action_stop_scanning" android:title="@string/action_stop_scanning"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="200" app:showAsAction="never" />
+
+    <item android:id="@+id/action_make_device_visible"
+        android:title="@string/action_make_device_visible"
+        android:icon="@drawable/ic_remove_red_eye_white_24dp"
+        android:orderInCategory="250"
+        app:showAsAction="never" />
 
     <item android:id="@+id/action_about" android:title="@string/action_about"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="300" app:showAsAction="never" />
 
     <item android:id="@+id/action_exit" android:title="@string/action_exit"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="400" app:showAsAction="never" />
 </menu>

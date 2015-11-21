@@ -1,13 +1,17 @@
 #
-# generated on 2015/11/14 02:27:23
+# generated on 2015/11/21 01:36:02
 #
 # --table-start--
-dataClass=one.tribe.whatsnearme.model.KnownDevice
-tableName=known_devices
+dataClass=one.tribe.whatsnearme.deviceswithapp.persistency.DeviceWithApp
+tableName=devices_with_app
 # --table-fields-start--
 # --field-start--
 fieldName=id
-id=true
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=phoneId
+canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=macAddress

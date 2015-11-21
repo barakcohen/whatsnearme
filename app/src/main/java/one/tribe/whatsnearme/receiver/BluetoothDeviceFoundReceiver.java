@@ -13,6 +13,7 @@ import java.util.Collections;
 import one.tribe.whatsnearme.Constants;
 import one.tribe.whatsnearme.bluetooth.BluetoothDeviceManager;
 import one.tribe.whatsnearme.bluetooth.DiscoverableBluetoothDevice;
+import one.tribe.whatsnearme.bluetooth.WhatsNearMeDeviceManager;
 import one.tribe.whatsnearme.network.NetworkEvent;
 import one.tribe.whatsnearme.network.NetworkEventType;
 
@@ -29,6 +30,7 @@ public class BluetoothDeviceFoundReceiver extends BroadcastReceiver {
         Log.d(Constants.TAG, "BluetoothDevice.ACTION_FOUND broadcast received");
 
         boolean isDiscovered = BluetoothDeviceManager.getInstance().addDiscoveredClassicDevice(device);
+        WhatsNearMeDeviceManager.getInstance().addDiscoveredDevice(device);
 
         // If the device is new, notify immediately
         if(!isDiscovered) {

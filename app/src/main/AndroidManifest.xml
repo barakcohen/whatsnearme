@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <!-- For debugging purposes only -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -53,10 +54,12 @@
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         <activity
-            android:name=".ui.KnownDevicesActivity"
-            android:label="@string/title_activity_known_devices"
+            android:name=".deviceswithapp.DevicesWithAppActivity"
+            android:label="@string/title_activity_devices_with_app"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="one.tribe.whatsnearme.ui.MainActivity" />

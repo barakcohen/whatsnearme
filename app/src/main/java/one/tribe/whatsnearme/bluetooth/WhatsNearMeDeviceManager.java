@@ -1,20 +1,22 @@
 package one.tribe.whatsnearme.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
-import android.os.ParcelUuid;
-import android.os.Parcelable;
+import android.content.Context;
 import android.util.Log;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import one.tribe.whatsnearme.Constants;
+import one.tribe.whatsnearme.deviceswithapp.persistency.DeviceWithApp;
+import one.tribe.whatsnearme.deviceswithapp.persistency.DevicesWithAppDao;
 import one.tribe.whatsnearme.network.Discoverable;
 import one.tribe.whatsnearme.network.NetworkChanges;
 import one.tribe.whatsnearme.network.NetworkManager;
 
 /**
- *
+ * Manages the nearby devices with the app running
  */
 public class WhatsNearMeDeviceManager extends NetworkManager {
 
@@ -26,17 +28,23 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
 
     private Set<Discoverable> availableDevices;
     private Set<Discoverable> discoveredDevices;
-    private Set<String> devicesWithAppCache;
+
+    private DevicesWithAppDao devicesWithAppDao;
 
     private WhatsNearMeDeviceManager() {
         availableDevices = new HashSet<>();
         discoveredDevices = new HashSet<>();
-        devicesWithAppCache = new HashSet<>();
     }
 
     /**
-     * Return the the devices visibility changes since the last discovery
-     * @return the device changes
+     * Initialize the DAO objects with the app Context
+     */
+    public void initDAO(Context context) {
+        devicesWithAppDao = new DevicesWithAppDao(context);
+    }
+
+    /**
+     * Return the devices visibility changes since the last discovery
      */
     public NetworkChanges getDevicesChanges() {
         Log.d(Constants.TAG, "Discovered Bluetooth devices with App: " + discoveredDevices);
@@ -53,52 +61,26 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
         return networkChanges;
     }
 
-    public void onDiscoveredDeviceUUIDFetched(BluetoothDevice bluetoothDevice, Parcelable[] parcels) {
-        if(deviceHasApp(bluetoothDevice, parcels)) {
-            addDeviceToCache(bluetoothDevice);
+    /**
+     * Adds a discovered device with the app running to the device list
+     * @param discoveredDevice a discovered device through the bluetooth discovery
+     */
+    public void addDiscoveredDevice(BluetoothDevice discoveredDevice) {
+        DiscoverableBluetoothDevice device =
+                new DiscoverableBluetoothDevice(discoveredDevice);
+
+        if(!discoveredDevices.contains(device) && deviceHasApp(device)) {
+            Log.i(Constants.TAG, "Device with app found: " + device);
+            discoveredDevices.add(device);
         }
     }
 
-    public void onDiscoveryFinished() {
-        Set<DiscoverableBluetoothDevice> discoveredDevices =
-                BluetoothDeviceManager.getInstance().getDiscoveredClassicDevices();
+    private boolean deviceHasApp(DiscoverableBluetoothDevice device) {
 
-        Log.i(Constants.TAG, "Looking for another devices using the App");
-        for(DiscoverableBluetoothDevice device : discoveredDevices) {
-            BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
+        List<DeviceWithApp> devicesWithApp = devicesWithAppDao.getDevicesWithApp();
 
-            // For all devices discovered, check if the app is installed
-            if(deviceHasApp(bluetoothDevice)) {
-                Log.i(Constants.TAG, "Another device with WhatsNearApp found: " + device);
-                addDeviceToCache(bluetoothDevice);
-                this.discoveredDevices.add(new DiscoverableDeviceWithApp(bluetoothDevice));
-            }else if(bluetoothDevice.getUuids() == null) {
-                Log.i(Constants.TAG, "Trying to fetch the WhatsNearMe UUID for device " + device);
-                boolean started = bluetoothDevice.fetchUuidsWithSdp();
-                Log.i(Constants.TAG, "Fetch started for device: " + started);
-            }
-        }
-    }
-
-    private boolean deviceHasApp(BluetoothDevice device) {
-        return deviceHasApp(device, device.getUuids());
-    }
-
-    private boolean deviceHasApp(BluetoothDevice device, Parcelable[] parcels) {
-        if(devicesWithAppCache.contains(device.getAddress())) {
-            return Boolean.TRUE;
-        }
-
-        if(parcels == null) {
-            return Boolean.FALSE;
-        }
-
-        Log.i(Constants.TAG, "Checking for the WhatsNearMe UUID for discovered device " + device);
-
-        for(Parcelable parcelUuid : parcels) {
-            ParcelUuid uuid = (ParcelUuid) parcelUuid;
-            Log.d(Constants.TAG, "UUID "+ uuid + " found for device " +device);
-            if(Constants.MY_UUID_INSECURE.equals(uuid.getUuid())) {
+        for (DeviceWithApp deviceWithApp : devicesWithApp) {
+            if(deviceWithApp.getMacAddress().equalsIgnoreCase(device.getAddress())) {
                 return Boolean.TRUE;
             }
         }
@@ -106,14 +88,9 @@ public class WhatsNearMeDeviceManager extends NetworkManager {
         return Boolean.FALSE;
     }
 
-
-    private void addDeviceToCache(BluetoothDevice bluetoothDevice) {
-        if(!devicesWithAppCache.contains(bluetoothDevice.getAddress())) {
-            Log.i(Constants.TAG, "Adding new device with the App to cache: " + bluetoothDevice.getAddress());
-            devicesWithAppCache.add(bluetoothDevice.getAddress());
-        }
-    }
-
+    /**
+     * Returns a set of the available devices
+     */
     public Set<Discoverable> getAvailableDevices() {
         return new HashSet<>(availableDevices);
     }

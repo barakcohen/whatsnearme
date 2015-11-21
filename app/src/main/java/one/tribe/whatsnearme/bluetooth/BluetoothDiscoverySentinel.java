@@ -1,5 +1,6 @@
 package one.tribe.whatsnearme.bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.util.Log;
@@ -20,9 +21,9 @@ public class BluetoothDiscoverySentinel {
         handler = new Handler();
     }
 
-    public void notifyDiscoveryStart() {
+    public void notifyDiscoveryStart(BluetoothAdapter bluetoothAdapter) {
         Log.i(Constants.TAG, "Bluetooth discovery started, scheduling discovery timeout task");
-        handler.postDelayed(new ForceDiscoveryTask(), discoveryTimeout);
+        handler.postDelayed(new ForceDiscoveryTask(bluetoothAdapter), discoveryTimeout);
     }
 
     public void notifyDiscoveryFinish() {
@@ -32,10 +33,16 @@ public class BluetoothDiscoverySentinel {
 
     private class ForceDiscoveryTask implements Runnable {
 
+        private final BluetoothAdapter bluetoothAdapter;
+
+        public ForceDiscoveryTask(BluetoothAdapter bluetoothAdapter) {
+            this.bluetoothAdapter = bluetoothAdapter;
+        }
+
         @Override
         public void run() {
             Log.w(Constants.TAG, "Bluetooth discovery time is up, forcing it's finish");
-            BluetoothDeviceManager.getInstance().forceDiscoveryFinish();
+            BluetoothDeviceManager.getInstance().forceDiscoveryFinish(bluetoothAdapter);
         }
     }
 }

@@ -31,8 +31,6 @@ public class BluetoothDiscoveryFinishedReceiver extends BroadcastReceiver {
         if(BluetoothDeviceManager.getInstance().hasClassicBluetoothDiscovery()) {
 
             BluetoothDeviceManager.getInstance().finishClassicBluetoothDiscovery();
-            WhatsNearMeDeviceManager.getInstance().onDiscoveryFinished();
-
 
             notifyChanges(BluetoothDeviceManager.getInstance().getBluetoothDevicesChanges(), context);
             notifyChanges(WhatsNearMeDeviceManager.getInstance().getDevicesChanges(), context);
